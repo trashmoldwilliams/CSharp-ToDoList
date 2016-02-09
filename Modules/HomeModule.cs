@@ -1,30 +1,27 @@
 using Nancy;
-using Parcels.Objects;
+using Todo.Objects;
+using System.Collections.Generic;
 
-namespace Parcels
+namespace ToDoList
 {
   public class HomeModule : NancyModule
   {
     public HomeModule()
     {
-      Get["/form"] = _ => {
-        return View["form.html"];
+      Get["/"] = _ => View["add_new_task.cshtml"];
+      Get["/view_all_tasks"] = _ => {
+        List<string> allTasks = Task.GetAll();
+        return View["view_all_tasks.cshtml", allTasks];
       };
-      Get["/shipping"] = _ => {
-        Parcel myParcel = new Parcel(Request.Query["Width"],Request.Query["Height"],Request.Query["Length"],Request.Query["Weight"]);
-        ParcelVariables parcelVariables = new ParcelVariables
-        {
-          Width = myParcel.GetWidth(),
-          Height = myParcel.GetHeight(),
-          Length = myParcel.GetLength(),
-          Weight = myParcel.GetWeight(),
-          Volume = myParcel.Volume(),
-          CostToShip = myParcel.CostToShip()
-        };
-        return View["shipping.html", parcelVariables];
+      Post["/tasks_cleared"] = _ => {
+        Task.ClearAll();
+        return View["tasks_cleared.cshtml"];
+      };
+      Post["/task_added"] = _ => {
+        Task newTask = new Task (Request.Form["new-task"]);
+        newTask.Save();
+        return View["task_added.cshtml", newTask];
       };
     }
   }
-
-
 }
